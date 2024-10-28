@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ForumDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.addtime as addtime
+        ,a.title as title
+        ,a.content as content
+        ,a.parentid as parentid
+        ,a.userid as userid
+        ,a.username as username
+        ,a.isdone as isdone
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ForumView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM forum  a
+
+        <where>
+            <if test=" params.addtimeStart != '' and params.addtimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.addtime, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.addtimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.addtimeEnd != '' and params.addtimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.addtime, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.addtimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test=" params.title != '' and params.title != null and params.title != 'null' ">
+                and a.title like CONCAT('%',#{params.title},'%')
+            </if>
+            <if test=" params.content != '' and params.content != null and params.content != 'null' ">
+                and a.content like CONCAT('%',#{params.content},'%')
+            </if>
+            <if test="params.parentidStart != null">
+                <![CDATA[  and a.parentid >= #{params.parentidStart}   ]]>
+            </if>
+            <if test="params.parentidEnd != null">
+                <![CDATA[  and a.parentid <= #{params.parentidEnd}   ]]>
+            </if>
+            <if test="params.useridStart != null">
+                <![CDATA[  and a.userid >= #{params.useridStart}   ]]>
+            </if>
+            <if test="params.useridEnd != null">
+                <![CDATA[  and a.userid <= #{params.useridEnd}   ]]>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.isdone != '' and params.isdone != null and params.isdone != 'null' ">
+                and a.isdone like CONCAT('%',#{params.isdone},'%')
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
